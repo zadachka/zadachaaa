@@ -2,46 +2,195 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Zadacha</title>
     <style>
-        body {font-family: Arial,sans-serif; background:#f5f5f5; margin:0;}
-        .header {background:white; padding:16px; display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #ddd;}
-        .nav {display:flex; gap:12px;}
-        .nav button {background:none; border:none; font-size:14px; cursor:pointer; padding:6px 10px; border-radius:6px; transition:background 0.3s;}
-        .nav button.active {background:#007bff; color:white;}
-        .content {padding:16px; max-width:600px; margin:0 auto;}
-        .task, .profile-card, .withdraw-card {background:white; border-radius:12px; padding:16px; margin-bottom:12px; box-shadow:0 2px 6px rgba(0,0,0,0.1);}
-        .task-title {font-weight:bold; margin-bottom:8px; display:flex; align-items:center; gap:6px; font-size:16px;}
-        .task-desc {margin-bottom:12px; color:#333; font-size:14px;}
-        .task-footer {display:flex; justify-content:space-between; align-items:center;}
-        .task-footer span {font-size:13px; color:#555;}
+        body {
+            font-family: system-ui, Arial, sans-serif;
+            margin: 0;
+            background: #f5f5f5;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .header {
+            background: white;
+            padding: 12px 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #ddd;
+            font-size: 18px;
+        }
+        .nav {
+            display: flex;
+            gap: 8px;
+        }
+        .nav button {
+            background: none;
+            border: none;
+            font-size: 15px;
+            cursor: pointer;
+            padding: 5px 12px;
+            border-radius: 8px;
+            transition: background 0.3s;
+        }
+        .nav button.active {
+            background-color: #007bff;
+            color: white;
+        }
+        .content {
+            padding: 8px;
+            max-width: 460px;
+            margin: 0 auto;
+        }
+        .task, .profile-card, .withdraw-card {
+            background: white;
+            border-radius: 14px;
+            padding: 12px;
+            margin-bottom: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+        .task-title {
+            font-weight: bold;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            font-size: 16px;
+        }
+        .task-desc {
+            margin-bottom: 10px;
+            color: #333;
+            font-size: 14px;
+        }
+        .task-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .task-footer span {
+            font-size: 12px;
+            color: #555;
+        }
         .start-btn, .withdraw-btn, .back-btn, .check-btn, .tg-btn {
-            background-color:#007bff; color:white; padding:8px 16px; border:none; border-radius:8px; cursor:pointer; font-size:14px; transition:transform 0.1s, background-color 0.3s;}
-        .start-btn:disabled {background:#aaa; cursor:default;}
-        .start-btn:hover:not(:disabled), .withdraw-btn:hover:not(:disabled), .back-btn:hover, .check-btn:hover, .tg-btn:hover {background-color:#0056b3;}
-        .start-btn:active, .withdraw-btn:active, .back-btn:active, .check-btn:active, .tg-btn:active {transform:scale(0.95);}
-        .hidden {display:none;}
-        .done-label {display:inline-block; color:#36a82e; background:#e9f9e7; padding:2px 10px; border-radius:8px; margin-top:10px; font-size:13px;}
-        .modal-bg {position:fixed; z-index:15; left:0; top:0; right:0; bottom:0; width:100vw; height:100vh; background:rgba(0,0,0,0.26); display:none; align-items:center; justify-content:center;}
-        .modal-bg.show {display:flex;}
-        .modal {background:#fff; border-radius:16px; padding:24px 16px 16px 16px; max-width:96vw; width:340px; box-shadow:0 8px 36px rgba(0,0,0,0.17); text-align:center; position:relative;}
-        .modal input[type="text"], .modal input[type="file"] {width:95%; margin:10px 0 15px 0; padding:6px; font-size:15px; border-radius:7px; border:1px solid #ccc;}
-        .modal .close-btn {position:absolute; top:8px; right:12px; background:none; border:none; font-size:22px; color:#777; cursor:pointer;}
-        .notify {position:fixed; z-index:40; left:50%; top:40px; transform:translateX(-50%); background:#222; color:#fff; border-radius:14px; padding:10px 20px; font-size:15px; opacity:0; pointer-events:none; transition:opacity 0.3s;}
-        .notify.show {opacity:1;}
-        .subscribe-modal .modal {padding-top:36px;}
-        .subscribe-list {text-align:left; margin:18px 0 18px 0; font-size:15px;}
-        .subscribe-list li {margin-bottom:8px;}
-        .check-btn, .tg-btn {margin:14px 0 0 0;}
-        .withdraw-btn[disabled] {background:#aaa; cursor:default;}
-        .withdraw-hint {font-size:13px; color:#d13c3c; margin-top:8px;}
-        @media (max-width:480px) {.content {padding:8px;} .task, .profile-card, .withdraw-card, .modal {padding:11px;} .modal {width:98vw;} .start-btn, .withdraw-btn, .back-btn, .check-btn, .tg-btn {padding:7px 9px; font-size:13px;}}
+            background-color: #007bff;
+            color: white;
+            padding: 10px 0;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 15px;
+            width: 100%;
+            margin-top: 5px;
+            margin-bottom: 2px;
+            transition: background 0.3s, transform 0.1s;
+        }
+        .start-btn:disabled {background: #aaa; cursor: default;}
+        .start-btn:hover:not(:disabled),
+        .withdraw-btn:hover:not(:disabled),
+        .back-btn:hover,
+        .check-btn:hover,
+        .tg-btn:hover {background-color: #0056b3;}
+        .start-btn:active,
+        .withdraw-btn:active,
+        .back-btn:active,
+        .check-btn:active,
+        .tg-btn:active {transform: scale(0.97);}
+        .hidden {display: none;}
+        .done-label {
+            display: inline-block;
+            color: #36a82e;
+            background: #e9f9e7;
+            padding: 2px 10px;
+            border-radius: 8px;
+            margin-top: 8px;
+            font-size: 13px;
+        }
+        .modal-bg {
+            position: fixed;
+            z-index: 99;
+            left: 0; top: 0; right: 0; bottom: 0;
+            width: 100vw; height: 100vh;
+            background: rgba(0,0,0,0.24);
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-bg.show {display: flex;}
+        .modal {
+            background: #fff;
+            border-radius: 18px;
+            padding: 20px 10px 12px 10px;
+            max-width: 96vw;
+            width: 98vw;
+            box-shadow: 0 8px 36px rgba(0,0,0,0.13);
+            text-align: center;
+            position: relative;
+        }
+        .modal input[type="text"],
+        .modal input[type="file"] {
+            width: 97%;
+            margin: 10px 0 14px 0;
+            padding: 10px;
+            font-size: 15px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+        }
+        .modal .close-btn {
+            position: absolute;
+            top: 7px;
+            right: 11px;
+            background: none;
+            border: none;
+            font-size: 26px;
+            color: #aaa;
+            cursor: pointer;
+        }
+        .notify {
+            position: fixed;
+            z-index: 120;
+            left: 50%; top: 36px;
+            transform: translateX(-50%);
+            background: #222;
+            color: #fff;
+            border-radius: 15px;
+            padding: 13px 22px;
+            font-size: 16px;
+            opacity: 0; pointer-events: none;
+            transition: opacity 0.3s;
+            box-shadow: 0 2px 14px rgba(0,0,0,0.11);
+        }
+        .notify.show {opacity: 1;}
+        .subscribe-modal .modal {padding-top: 26px;}
+        .subscribe-list {
+            text-align: left;
+            margin: 14px 0 18px 0;
+            font-size: 15px;
+            padding-left: 0;
+        }
+        .subscribe-list li {margin-bottom: 7px;}
+        .check-btn, .tg-btn {margin: 11px 0 0 0;}
+        .withdraw-btn[disabled] {background: #aaa; cursor: default;}
+        .withdraw-hint {
+            font-size: 13px;
+            color: #d13c3c;
+            margin-top: 8px;
+        }
+        input, button, select, textarea {font-family: inherit;}
+        @media (max-width: 600px) {
+            .content {padding: 2vw;}
+            .modal {width: 99vw; padding: 13px 2vw;}
+            .modal input[type="text"], .modal input[type="file"] {font-size: 16px;}
+            .start-btn, .withdraw-btn, .back-btn, .check-btn, .tg-btn {font-size: 16px;}
+        }
+        @media (max-width: 400px) {
+            .modal input[type="text"], .modal input[type="file"] {font-size: 14px;}
+            .task-title, .profile-card h2 {font-size: 15px;}
+        }
     </style>
 </head>
 <body>
     <div class="header">
-        <h1>✅ Zadacha</h1>
+        <span>✅ Zadacha</span>
         <div class="nav">
             <button class="tab-btn active" data-tab="tasks">Задания</button>
             <button class="tab-btn" data-tab="profile">Личный кабинет</button>
@@ -126,29 +275,37 @@
             <button class="start-btn" id="submit-task3">Готово</button>
         </div>
     </div>
-    <!-- МОДАЛЬНОЕ ОКНО ПОДПИСКИ -->
+    <!-- МОДАЛКА ПОДПИСКИ -->
     <div class="modal-bg subscribe-modal" id="modal-subscribe">
         <div class="modal">
-            <div style="font-size:18px; font-weight:bold; margin-bottom:5px;">Доступ к 3 заданию</div>
+            <div style="font-size:17px; font-weight:500; margin-bottom:4px;">Доступ к 3 заданию</div>
             <ul class="subscribe-list" id="subscribe-list">
-                <li>1. Перейдите в нашего Telegram-бота</li>
-                <li>2. Подпишитесь на все каналы</li>
-                <li>3. Получите код доступа от бота</li>
-                <li>4. Вставьте его сюда</li>
+                <li>1. Перейди в нашего Telegram-бота</li>
+                <li>2. Если бот не прислал инструкции — напиши <b>Получить код</b></li>
+                <li>3. Подпишись на канал спонсора</li>
+                <li>4. Нажми "Проверить подписки"</li>
+                <li>5. Введи код из бота здесь, чтобы открыть 3-е задание</li>
             </ul>
-            <!-- Здесь нужная ссылка! -->
-            <a href="https://t.me/zzadacha_bot?start=subscribe" target="_blank" class="tg-btn" style="margin-bottom:10px;">Перейти к подписке</a>
+            <a href="https://t.me/zzadacha_bot?start=getcode" target="_blank" class="tg-btn" style="margin-bottom:10px;">Перейти в бот</a>
             <input type="text" id="access-code-input" placeholder="Вставьте код доступа">
             <button class="check-btn" id="check-access-code">Проверить код</button>
         </div>
     </div>
     <div class="notify" id="notify"></div>
     <script>
-        let tasksDone = [false, false, false];
+        // ====== ЛОГИКА ======
+        let tasksDone = JSON.parse(localStorage.getItem("tasksDone")) || [false, false, false];
         let taskPays = [100, 150, 700];
-        let balance = 0;
-        let doneTasks = 0;
-        let canOpenThirdTask = false;
+        let balance = Number(localStorage.getItem("balance")) || 0;
+        let doneTasks = Number(localStorage.getItem("doneTasks")) || 0;
+        let canOpenThirdTask = localStorage.getItem("canOpenThirdTask") === "true";
+
+        function saveProgress() {
+            localStorage.setItem("tasksDone", JSON.stringify(tasksDone));
+            localStorage.setItem("balance", balance.toString());
+            localStorage.setItem("doneTasks", doneTasks.toString());
+            localStorage.setItem("canOpenThirdTask", canOpenThirdTask ? "true" : "false");
+        }
 
         function updateProfile() {
             document.getElementById("profile-balance").innerText = balance + " ₽";
@@ -174,13 +331,14 @@
                 card.appendChild(label);
             }
             document.getElementById("start-task"+(idx+1)).disabled = true;
+            saveProgress();
         }
 
         function showNotify(message) {
             const notify = document.getElementById("notify");
             notify.textContent = message;
             notify.classList.add("show");
-            setTimeout(() => {notify.classList.remove("show");}, 2500);
+            setTimeout(() => {notify.classList.remove("show");}, 2300);
         }
 
         function showModal(id) {
@@ -238,6 +396,7 @@
             closeModal("modal-task1");
             document.getElementById("task1-url").value = "";
             checkAfterTwoTasks();
+            saveProgress();
         });
 
         document.getElementById("start-task2").addEventListener("click", () => {
@@ -259,6 +418,7 @@
             closeModal("modal-task2");
             fileInput.value = "";
             checkAfterTwoTasks();
+            saveProgress();
         });
 
         document.getElementById("start-task3").addEventListener("click", () => {
@@ -279,6 +439,7 @@
             setTaskDone(2);
             closeModal("modal-task3");
             document.getElementById("task3-confirm").value = "";
+            saveProgress();
         });
 
         function checkAfterTwoTasks() {
@@ -286,23 +447,31 @@
                 showModal("modal-subscribe");
             }
         }
-        // ====== КОД ДОСТУПА для третьего задания ======
-        const SECRET_CODE = "ZADACHA2024"; // такой же как у бота!
-
+        // КОД ДОСТУПА для третьего задания
+        const SECRET_CODE = "Zadacha2025";
         document.getElementById("check-access-code").addEventListener("click", () => {
             const code = document.getElementById("access-code-input").value.trim();
-            if (code.toUpperCase() === SECRET_CODE) {
+            if (code === SECRET_CODE) {
                 canOpenThirdTask = true;
                 closeModal("modal-subscribe");
                 showNotify("Доступ к 3 заданию открыт!");
                 document.getElementById("start-task3").disabled = false;
+                saveProgress();
             } else {
                 showNotify("Неверный код доступа!");
             }
         });
 
-        // ИНИЦИАЛИЗАЦИЯ
-        updateProfile();
+        // INIT
+        window.addEventListener('DOMContentLoaded', function() {
+            for (let i = 0; i < tasksDone.length; i++) {
+                if (tasksDone[i]) setTaskDone(i);
+            }
+            if (canOpenThirdTask) {
+                document.getElementById("start-task3").disabled = false;
+            }
+            updateProfile();
+        });
     </script>
 </body>
 </html>
