@@ -222,6 +222,8 @@
                     <span>7 мин • 700 ₽</span>
                     <button class="start-btn" id="start-task3" disabled>Начать →</button>
                 </div>
+                <!-- КНОПКА ДЛЯ ВВОДА КОДА -->
+                <button class="start-btn" id="show-access-code" style="margin-top: 5px; width: 100%; display: none;">Ввести код доступа</button>
             </div>
         </div>
         <!-- ЛИЧНЫЙ КАБИНЕТ -->
@@ -332,6 +334,7 @@
             }
             document.getElementById("start-task"+(idx+1)).disabled = true;
             saveProgress();
+            updateAccessBtn();
         }
 
         function showNotify(message) {
@@ -347,6 +350,19 @@
         function closeModal(id) {
             document.getElementById(id).classList.remove("show");
         }
+
+        // ===== КНОПКА ВВОДА КОДА =====
+        function updateAccessBtn() {
+            const btn = document.getElementById("show-access-code");
+            if (tasksDone[0] && tasksDone[1] && !canOpenThirdTask) {
+                btn.style.display = "";
+            } else {
+                btn.style.display = "none";
+            }
+        }
+        document.getElementById("show-access-code").addEventListener("click", () => {
+            showModal("modal-subscribe");
+        });
 
         // Tabs
         const tabButtons = document.querySelectorAll(".tab-btn");
@@ -446,6 +462,7 @@
             if (tasksDone[0] && tasksDone[1] && !canOpenThirdTask) {
                 showModal("modal-subscribe");
             }
+            updateAccessBtn();
         }
         // КОД ДОСТУПА для третьего задания
         const SECRET_CODE = "Zadacha2025";
@@ -456,6 +473,7 @@
                 closeModal("modal-subscribe");
                 showNotify("Доступ к 3 заданию открыт!");
                 document.getElementById("start-task3").disabled = false;
+                updateAccessBtn();
                 saveProgress();
             } else {
                 showNotify("Неверный код доступа!");
@@ -471,6 +489,7 @@
                 document.getElementById("start-task3").disabled = false;
             }
             updateProfile();
+            updateAccessBtn();
         });
     </script>
 </body>
