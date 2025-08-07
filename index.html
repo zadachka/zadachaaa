@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zadacha</title>
+    <style>
+        body {font-family: Arial,sans-serif; background:#f5f5f5; margin:0;}
+        .header {background:white; padding:16px; display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #ddd;}
+        .nav {display:flex; gap:12px;}
+        .nav button {background:none; border:none; font-size:14px; cursor:pointer; padding:6px 10px; border-radius:6px; transition:background 0.3s;}
+        .nav button.active {background:#007bff; color:white;}
+        .content {padding:16px; max-width:600px; margin:0 auto;}
+        .task, .profile-card, .withdraw-card {background:white; border-radius:12px; padding:16px; margin-bottom:12px; box-shadow:0 2px 6px rgba(0,0,0,0.1);}
+        .task-title {font-weight:bold; margin-bottom:8px; display:flex; align-items:center; gap:6px; font-size:16px;}
+        .task-desc {margin-bottom:12px; color:#333; font-size:14px;}
+        .task-footer {display:flex; justify-content:space-between; align-items:center;}
+        .task-footer span {font-size:13px; color:#555;}
+        .start-btn, .withdraw-btn, .back-btn, .check-btn, .tg-btn {
+            background-color:#007bff; color:white; padding:8px 16px; border:none; border-radius:8px; cursor:pointer; font-size:14px; transition:transform 0.1s, background-color 0.3s;}
+        .start-btn:disabled {background:#aaa; cursor:default;}
+        .start-btn:hover:not(:disabled), .withdraw-btn:hover:not(:disabled), .back-btn:hover, .check-btn:hover, .tg-btn:hover {background-color:#0056b3;}
+        .start-btn:active, .withdraw-btn:active, .back-btn:active, .check-btn:active, .tg-btn:active {transform:scale(0.95);}
+        .hidden {display:none;}
+        .done-label {display:inline-block; color:#36a82e; background:#e9f9e7; padding:2px 10px; border-radius:8px; margin-top:10px; font-size:13px;}
+        .modal-bg {position:fixed; z-index:15; left:0; top:0; right:0; bottom:0; width:100vw; height:100vh; background:rgba(0,0,0,0.26); display:none; align-items:center; justify-content:center;}
+        .modal-bg.show {display:flex;}
+        .modal {background:#fff; border-radius:16px; padding:24px 16px 16px 16px; max-width:96vw; width:340px; box-shadow:0 8px 36px rgba(0,0,0,0.17); text-align:center; position:relative;}
+        .modal input[type="text"], .modal input[type="file"] {width:95%; margin:10px 0 15px 0; padding:6px; font-size:15px; border-radius:7px; border:1px solid #ccc;}
+        .modal .close-btn {position:absolute; top:8px; right:12px; background:none; border:none; font-size:22px; color:#777; cursor:pointer;}
+        .notify {position:fixed; z-index:40; left:50%; top:40px; transform:translateX(-50%); background:#222; color:#fff; border-radius:14px; padding:10px 20px; font-size:15px; opacity:0; pointer-events:none; transition:opacity 0.3s;}
+        .notify.show {opacity:1;}
+        .subscribe-modal .modal {padding-top:36px;}
+        .subscribe-list {text-align:left; margin:18px 0 18px 0; font-size:15px;}
+        .subscribe-list li {margin-bottom:8px;}
+        .check-btn, .tg-btn {margin:14px 0 0 0;}
+        .withdraw-btn[disabled] {background:#aaa; cursor:default;}
+        .withdraw-hint {font-size:13px; color:#d13c3c; margin-top:8px;}
+        @media (max-width:480px) {.content {padding:8px;} .task, .profile-card, .withdraw-card, .modal {padding:11px;} .modal {width:98vw;} .start-btn, .withdraw-btn, .back-btn, .check-btn, .tg-btn {padding:7px 9px; font-size:13px;}}
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>✅ Zadacha</h1>
+        <div class="nav">
+            <button class="tab-btn active" data-tab="tasks">Задания</button>
+            <button class="tab-btn" data-tab="profile">Личный кабинет</button>
+        </div>
+    </div>
+    <div class="content">
+        <!-- ЗАДАНИЯ -->
+        <div id="tasks-section">
+            <div class="task" id="task-card-1">
+                <div class="task-title">🔍 Задание 1</div>
+                <div class="task-desc">Найди официальный сайт компании «КосмоТех»</div>
+                <div class="task-footer">
+                    <span>10 мин • 100 ₽</span>
+                    <button class="start-btn" id="start-task1">Начать →</button>
+                </div>
+            </div>
+            <div class="task" id="task-card-2">
+                <div class="task-title">📷 Задание 2</div>
+                <div class="task-desc">Загрузи фото с улицы с погодой сегодня</div>
+                <div class="task-footer">
+                    <span>5 мин • 150 ₽</span>
+                    <button class="start-btn" id="start-task2">Начать →</button>
+                </div>
+            </div>
+            <div class="task" id="task-card-3">
+                <div class="task-title">🧹 Задание 3</div>
+                <div class="task-desc">Очисти с облачного диска повторяющиеся фото (200 файлов)</div>
+                <div class="task-footer">
+                    <span>7 мин • 700 ₽</span>
+                    <button class="start-btn" id="start-task3" disabled>Начать →</button>
+                </div>
+            </div>
+        </div>
+        <!-- ЛИЧНЫЙ КАБИНЕТ -->
+        <div id="profile-section" class="hidden">
+            <div class="profile-card">
+                <h2>👤 Привет, пользователь</h2>
+                <p class="profile-info">Баланс: <strong id="profile-balance">0 ₽</strong></p>
+                <p class="profile-info">Выполнено заданий: <strong id="profile-tasks">0</strong></p>
+                <button class="withdraw-btn" id="go-withdraw" disabled>Вывести средства</button>
+                <div class="withdraw-hint" id="withdraw-hint" style="display:none;">
+                    Минимальная сумма для вывода — 1000 ₽
+                </div>
+            </div>
+        </div>
+        <!-- ВЫВОД СРЕДСТВ -->
+        <div id="withdraw-section" class="hidden">
+            <div class="withdraw-card">
+                <h2>Выберите способ вывода</h2>
+                <div class="withdraw-option">💳 Вывести на карту</div>
+                <div class="withdraw-option">🎁 Подарочная карта Wildberries</div>
+                <div class="withdraw-option">🎮 Баланс Steam</div>
+                <button class="back-btn" id="back-profile">← Назад</button>
+            </div>
+        </div>
+    </div>
+    <!-- МОДАЛКИ ЗАДАНИЙ -->
+    <div class="modal-bg" id="modal-task1">
+        <div class="modal">
+            <button class="close-btn" id="close-modal-task1">&times;</button>
+            <div class="task-title">🔍 Задание 1</div>
+            <div style="font-size:15px; margin:5px 0 10px 0;">Найди официальный сайт компании «КосмоТех» и вставь ссылку ниже:</div>
+            <input type="text" id="task1-url" placeholder="Вставьте ссылку на сайт">
+            <button class="start-btn" id="submit-task1">Готово</button>
+        </div>
+    </div>
+    <div class="modal-bg" id="modal-task2">
+        <div class="modal">
+            <button class="close-btn" id="close-modal-task2">&times;</button>
+            <div class="task-title">📷 Задание 2</div>
+            <div style="font-size:15px; margin:5px 0 10px 0;">Загрузите фото улицы с погодой сегодня:</div>
+            <input type="file" id="task2-photo" accept="image/*">
+            <button class="start-btn" id="submit-task2">Готово</button>
+        </div>
+    </div>
+    <div class="modal-bg" id="modal-task3">
+        <div class="modal">
+            <button class="close-btn" id="close-modal-task3">&times;</button>
+            <div class="task-title">🧹 Задание 3</div>
+            <div style="font-size:15px; margin:5px 0 10px 0;">Подтвердите, что удалили дублирующиеся фото (200 файлов):</div>
+            <input type="text" id="task3-confirm" placeholder="Напишите: Готово, удалил!">
+            <button class="start-btn" id="submit-task3">Готово</button>
+        </div>
+    </div>
+    <!-- МОДАЛЬНОЕ ОКНО ПОДПИСКИ -->
+    <div class="modal-bg subscribe-modal" id="modal-subscribe">
+        <div class="modal">
+            <div style="font-size:18px; font-weight:bold; margin-bottom:5px;">Доступ к 3 заданию</div>
+            <ul class="subscribe-list" id="subscribe-list">
+                <li>1. Перейдите в нашего Telegram-бота</li>
+                <li>2. Подпишитесь на все каналы</li>
+                <li>3. Получите код доступа от бота</li>
+                <li>4. Вставьте его сюда</li>
+            </ul>
+            <!-- Здесь нужная ссылка! -->
+            <a href="https://t.me/zzadacha_bot?start=subscribe" target="_blank" class="tg-btn" style="margin-bottom:10px;">Перейти к подписке</a>
+            <input type="text" id="access-code-input" placeholder="Вставьте код доступа">
+            <button class="check-btn" id="check-access-code">Проверить код</button>
+        </div>
+    </div>
+    <div class="notify" id="notify"></div>
+    <script>
+        let tasksDone = [false, false, false];
+        let taskPays = [100, 150, 700];
+        let balance = 0;
+        let doneTasks = 0;
+        let canOpenThirdTask = false;
+
+        function updateProfile() {
+            document.getElementById("profile-balance").innerText = balance + " ₽";
+            document.getElementById("profile-tasks").innerText = doneTasks;
+            const withdrawBtn = document.getElementById("go-withdraw");
+            const hint = document.getElementById("withdraw-hint");
+            if (balance >= 1000) {
+                withdrawBtn.disabled = false;
+                hint.style.display = "none";
+            } else {
+                withdrawBtn.disabled = true;
+                hint.style.display = "block";
+            }
+        }
+
+        function setTaskDone(idx) {
+            tasksDone[idx] = true;
+            const card = document.getElementById("task-card-" + (idx+1));
+            if (!card.querySelector('.done-label')) {
+                const label = document.createElement('div');
+                label.className = 'done-label';
+                label.innerText = 'Выполнено!';
+                card.appendChild(label);
+            }
+            document.getElementById("start-task"+(idx+1)).disabled = true;
+        }
+
+        function showNotify(message) {
+            const notify = document.getElementById("notify");
+            notify.textContent = message;
+            notify.classList.add("show");
+            setTimeout(() => {notify.classList.remove("show");}, 2500);
+        }
+
+        function showModal(id) {
+            document.getElementById(id).classList.add("show");
+        }
+        function closeModal(id) {
+            document.getElementById(id).classList.remove("show");
+        }
+
+        // Tabs
+        const tabButtons = document.querySelectorAll(".tab-btn");
+        const tasksSection = document.getElementById("tasks-section");
+        const profileSection = document.getElementById("profile-section");
+        const withdrawSection = document.getElementById("withdraw-section");
+        const goWithdraw = document.getElementById("go-withdraw");
+        const backProfile = document.getElementById("back-profile");
+
+        tabButtons.forEach(button => {
+            button.addEventListener("click", () => {
+                tabButtons.forEach(btn => btn.classList.remove("active"));
+                button.classList.add("active");
+                tasksSection.classList.add("hidden");
+                profileSection.classList.add("hidden");
+                withdrawSection.classList.add("hidden");
+                if (button.dataset.tab === "tasks") tasksSection.classList.remove("hidden");
+                else profileSection.classList.remove("hidden");
+            });
+        });
+        goWithdraw && goWithdraw.addEventListener("click", () => {
+            profileSection.classList.add("hidden");
+            withdrawSection.classList.remove("hidden");
+        });
+        backProfile && backProfile.addEventListener("click", () => {
+            withdrawSection.classList.add("hidden");
+            profileSection.classList.remove("hidden");
+        });
+
+        // Модалки по заданиям
+        document.getElementById("start-task1").addEventListener("click", () => {
+            if (!tasksDone[0]) showModal("modal-task1");
+        });
+        document.getElementById("close-modal-task1").addEventListener("click", () => closeModal("modal-task1"));
+        document.getElementById("submit-task1").addEventListener("click", () => {
+            if (tasksDone[0]) return;
+            const url = document.getElementById("task1-url").value.trim();
+            if (url === "" || !url.startsWith("http")) {
+                showNotify("Пожалуйста, введите корректную ссылку на сайт.");
+                return;
+            }
+            balance += taskPays[0];
+            doneTasks += 1;
+            updateProfile();
+            showNotify("Задание выполнено! На ваш баланс зачислено 100 ₽");
+            setTaskDone(0);
+            closeModal("modal-task1");
+            document.getElementById("task1-url").value = "";
+            checkAfterTwoTasks();
+        });
+
+        document.getElementById("start-task2").addEventListener("click", () => {
+            if (!tasksDone[1]) showModal("modal-task2");
+        });
+        document.getElementById("close-modal-task2").addEventListener("click", () => closeModal("modal-task2"));
+        document.getElementById("submit-task2").addEventListener("click", () => {
+            if (tasksDone[1]) return;
+            const fileInput = document.getElementById("task2-photo");
+            if (fileInput.files.length === 0) {
+                showNotify("Пожалуйста, выберите фотографию.");
+                return;
+            }
+            balance += taskPays[1];
+            doneTasks += 1;
+            updateProfile();
+            showNotify("Задание выполнено! На ваш баланс зачислено 150 ₽");
+            setTaskDone(1);
+            closeModal("modal-task2");
+            fileInput.value = "";
+            checkAfterTwoTasks();
+        });
+
+        document.getElementById("start-task3").addEventListener("click", () => {
+            if (!tasksDone[2] && canOpenThirdTask) showModal("modal-task3");
+        });
+        document.getElementById("close-modal-task3").addEventListener("click", () => closeModal("modal-task3"));
+        document.getElementById("submit-task3").addEventListener("click", () => {
+            if (tasksDone[2]) return;
+            const confirmInput = document.getElementById("task3-confirm").value.trim();
+            if (confirmInput.length < 2) {
+                showNotify("Пожалуйста, напишите подтверждение.");
+                return;
+            }
+            balance += taskPays[2];
+            doneTasks += 1;
+            updateProfile();
+            showNotify("Задание выполнено! На ваш баланс зачислено 700 ₽");
+            setTaskDone(2);
+            closeModal("modal-task3");
+            document.getElementById("task3-confirm").value = "";
+        });
+
+        function checkAfterTwoTasks() {
+            if (tasksDone[0] && tasksDone[1] && !canOpenThirdTask) {
+                showModal("modal-subscribe");
+            }
+        }
+        // ====== КОД ДОСТУПА для третьего задания ======
+        const SECRET_CODE = "ZADACHA2024"; // такой же как у бота!
+
+        document.getElementById("check-access-code").addEventListener("click", () => {
+            const code = document.getElementById("access-code-input").value.trim();
+            if (code.toUpperCase() === SECRET_CODE) {
+                canOpenThirdTask = true;
+                closeModal("modal-subscribe");
+                showNotify("Доступ к 3 заданию открыт!");
+                document.getElementById("start-task3").disabled = false;
+            } else {
+                showNotify("Неверный код доступа!");
+            }
+        });
+
+        // ИНИЦИАЛИЗАЦИЯ
+        updateProfile();
+    </script>
+</body>
+</html>
