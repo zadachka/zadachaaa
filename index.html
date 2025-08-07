@@ -281,13 +281,10 @@
     <div class="modal-bg subscribe-modal" id="modal-subscribe">
         <div class="modal">
             <div style="font-size:17px; font-weight:500; margin-bottom:4px;">Доступ к 3 заданию</div>
-            <ul class="subscribe-list" id="subscribe-list">
-                <li>1. Перейди в нашего Telegram-бота</li>
-                <li>2. Если бот не прислал инструкции — напиши <b>Получить код</b></li>
-                <li>3. Подпишись на канал спонсора</li>
-                <li>4. Нажми "Проверить подписки"</li>
-                <li>5. Введи код из бота здесь, чтобы открыть 3-е задание</li>
-            </ul>
+            <div style="text-align:left; margin:14px 0 18px 0; font-size:15px;">
+                1. Чтобы получить доступ к 3 заданию — <b>нажми кнопку «Перейти в бота»</b><br>
+                2. Закрой это мини-приложение и зайди в бота, чтобы продолжить
+            </div>
             <a href="https://t.me/zzadacha_bot?start=getcode" target="_blank" class="tg-btn" style="margin-bottom:10px;">Перейти в бот</a>
             <input type="text" id="access-code-input" placeholder="Вставьте код доступа">
             <button class="check-btn" id="check-access-code">Проверить код</button>
@@ -301,6 +298,8 @@
         let balance = Number(localStorage.getItem("balance")) || 0;
         let doneTasks = Number(localStorage.getItem("doneTasks")) || 0;
         let canOpenThirdTask = localStorage.getItem("canOpenThirdTask") === "true";
+        // Заглушка для блокировки 3 задания (до обновления страницы)
+        let task3Placeholder = false;
 
         function saveProgress() {
             localStorage.setItem("tasksDone", JSON.stringify(tasksDone));
@@ -438,7 +437,7 @@
         });
 
         document.getElementById("start-task3").addEventListener("click", () => {
-            if (!tasksDone[2] && canOpenThirdTask) showModal("modal-task3");
+            if (!tasksDone[2] && canOpenThirdTask && !task3Placeholder) showModal("modal-task3");
         });
         document.getElementById("close-modal-task3").addEventListener("click", () => closeModal("modal-task3"));
         document.getElementById("submit-task3").addEventListener("click", () => {
@@ -464,21 +463,37 @@
             }
             updateAccessBtn();
         }
-        // КОД ДОСТУПА для третьего задания
+
+        // ======= КОД ДОСТУПА для третьего задания =======
         const SECRET_CODE = "Zadacha2025";
         document.getElementById("check-access-code").addEventListener("click", () => {
             const code = document.getElementById("access-code-input").value.trim();
             if (code === SECRET_CODE) {
                 canOpenThirdTask = true;
                 closeModal("modal-subscribe");
-                showNotify("Доступ к 3 заданию открыт!");
-                document.getElementById("start-task3").disabled = false;
+                showNotify("Доступ к 3 заданию откроется через 24 часа!");
+                document.getElementById("start-task3").disabled = true;
+                showTask3Placeholder();
+                task3Placeholder = true; // До обновления страницы
                 updateAccessBtn();
                 saveProgress();
             } else {
                 showNotify("Неверный код доступа!");
             }
         });
+
+        function showTask3Placeholder() {
+            const task3 = document.getElementById("task-card-3");
+            let lockDiv = task3.querySelector('.lock-label');
+            if (!lockDiv) {
+                lockDiv = document.createElement('div');
+                lockDiv.className = 'lock-label';
+                lockDiv.style.cssText = "color:#d13c3c; background:#fde6e6; border-radius:8px; padding:4px 10px; margin-top:10px; font-size:14px;";
+                task3.appendChild(lockDiv);
+            }
+            lockDiv.textContent = "Доступ к заданию откроется через 24 часа";
+            lockDiv.style.display = "";
+        }
 
         // INIT
         window.addEventListener('DOMContentLoaded', function() {
