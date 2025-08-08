@@ -163,6 +163,7 @@
       localStorage.setItem("balance", balance.toString());
       localStorage.setItem("doneTasks", doneTasks.toString());
       localStorage.setItem("canOpenThirdTask", canOpenThirdTask ? "true" : "false");
+      localStorage.setItem("task3Placeholder", task3Placeholder ? "true" : "false"); // save placeholder!
     }
     function updateProfile() {
       document.getElementById("profile-balance").innerText = balance + " ₽";
@@ -344,6 +345,7 @@
         document.getElementById("start-task3").disabled = true;
         showTask3Placeholder();
         task3Placeholder = true;
+        localStorage.setItem("task3Placeholder", "true"); // Сохраняем флаг!
         updateAccessBtn();
         saveProgress();
       } else {
@@ -370,6 +372,9 @@
       if (canOpenThirdTask) {
         document.getElementById("start-task3").disabled = false;
       }
+      // восстановление состояния для placeholder!
+      task3Placeholder = localStorage.getItem("task3Placeholder") === "true";
+      if (task3Placeholder) showTask3Placeholder();
       updateProfile();
       updateAccessBtn();
     });
