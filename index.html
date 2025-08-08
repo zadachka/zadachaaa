@@ -12,7 +12,7 @@
     .tab-btn{background:#f1f1f1;color:#191a1b;border:none;border-radius:9px;font-size:15px;padding:6px 14px;cursor:pointer;font-weight:500;transition:background 0.16s;}
     .tab-btn.active{background:#007bff;color:#fff;}
     .content{max-width:430px;margin:0 auto;padding:8px 3px 24px 3px;}
-    .task,.profile-card,.withdraw-card{background:#fff;border-radius:14px;padding:15px 12px 13px 12px;margin-bottom:13px;box-shadow:0 2px 8px rgba(0,0,0,0.06);}
+    .task,.profile-card{background:#fff;border-radius:14px;padding:15px 12px 13px 12px;margin-bottom:13px;box-shadow:0 2px 8px rgba(0,0,0,0.06);}
     .task-title{font-weight:700;margin-bottom:8px;font-size:16.6px;display:flex;align-items:center;gap:8px;}
     .task-desc{margin-bottom:12px;color:#3e3e3e;font-size:14.3px;}
     .task-footer{display:flex;justify-content:space-between;align-items:center;}
@@ -36,7 +36,7 @@
     @media (prefers-color-scheme:dark){
       html,body{background:#181a20!important;color:#f4f4f4!important;}
       .header{background:#23242a!important;color:#fff!important;border-bottom:1px solid #2d2d34!important;}
-      .task,.profile-card,.withdraw-card{background:#202126!important;color:#f4f4f4!important;box-shadow:0 2px 8px rgba(0,0,0,0.17)!important;}
+      .task,.profile-card{background:#202126!important;color:#f4f4f4!important;box-shadow:0 2px 8px rgba(0,0,0,0.17)!important;}
       .task-desc{color:#b3b5b8!important;}
       .task-footer span{color:#aaa!important;}
       .done-label{color:#54dd80!important;background:#142017!important;}
@@ -91,16 +91,19 @@
         <h2>👤 Привет, пользователь</h2>
         <p>Баланс: <strong id="profile-balance">0 ₽</strong></p>
         <p>Выполнено заданий: <strong id="profile-tasks">0</strong></p>
-        <button class="my-btn" id="go-withdraw" style="margin-top:16px;">Вывести средства</button>
+        <p style="font-size:13.7px;color:#b53b3b;margin:10px 0 2px 0;display:none;" id="withdraw-hint">
+          Вывод доступен только от 700 ₽
+        </p>
+        <button class="my-btn" id="go-withdraw" style="margin-top:12px;">Вывести средства</button>
       </div>
     </div>
     <!-- СПОСОБЫ ВЫВОДА -->
     <div id="withdraw-section" class="hidden">
       <div class="profile-card">
         <h2>Выберите способ вывода:</h2>
-        <button class="my-btn" onclick="showNotify('Заявка на вывод на карту отправлена!')">💳 Банковская карта</button>
-        <button class="my-btn" onclick="showNotify('Заявка на вывод Wildberries отправлена!')">🎁 Карта Wildberries</button>
-        <button class="my-btn" onclick="showNotify('Заявка на вывод на баланс Steam отправлена!')">🎮 Баланс Steam</button>
+        <button class="my-btn" id="withdraw-card"   >💳 Банковская карта</button>
+        <button class="my-btn" id="withdraw-wb"     >🎁 Карта Wildberries</button>
+        <button class="my-btn" id="withdraw-steam"  >🎮 Баланс Steam</button>
         <button class="my-btn" id="back-profile" style="margin-top:14px;background:#f1f1f1;color:#2b2b2b;">← Назад</button>
       </div>
     </div>
@@ -164,6 +167,15 @@
     function updateProfile() {
       document.getElementById("profile-balance").innerText = balance + " ₽";
       document.getElementById("profile-tasks").innerText = doneTasks;
+      const withdrawBtn = document.getElementById("go-withdraw");
+      const hint = document.getElementById("withdraw-hint");
+      if (balance >= 700) {
+        withdrawBtn.disabled = false;
+        hint.style.display = "none";
+      } else {
+        withdrawBtn.disabled = true;
+        hint.style.display = "block";
+      }
     }
     function setTaskDone(idx) {
       tasksDone[idx] = true;
@@ -194,6 +206,26 @@
         btn.style.display = "none";
       }
     }
+    function updateWithdrawButtons() {
+      const w1 = document.getElementById("withdraw-card");
+      const w2 = document.getElementById("withdraw-wb");
+      const w3 = document.getElementById("withdraw-steam");
+      if (balance < 700) {
+        [w1,w2,w3].forEach(btn=>{
+          btn.disabled = true;
+          btn.style.background = '#bdbdbd';
+          btn.style.color = '#fff';
+          btn.textContent = "Доступно от 700 ₽";
+        });
+      } else {
+        w1.disabled = false; w2.disabled = false; w3.disabled = false;
+        w1.textContent = "💳 Банковская карта";
+        w2.textContent = "🎁 Карта Wildberries";
+        w3.textContent = "🎮 Баланс Steam";
+        w1.style.background = w2.style.background = w3.style.background = "";
+        w1.style.color = w2.style.color = w3.style.color = "";
+      }
+    }
     document.getElementById("show-access-code").addEventListener("click", () => {
       showModal("modal-subscribe");
     });
@@ -217,11 +249,21 @@
     document.getElementById("go-withdraw").addEventListener("click", () => {
       profileSection.classList.add("hidden");
       withdrawSection.classList.remove("hidden");
+      updateWithdrawButtons();
     });
     document.getElementById("back-profile").addEventListener("click", () => {
       withdrawSection.classList.add("hidden");
       profileSection.classList.remove("hidden");
     });
+    document.getElementById("withdraw-card").onclick = function() {
+      if (balance >= 700) showNotify('Заявка на вывод на карту отправлена!');
+    };
+    document.getElementById("withdraw-wb").onclick = function() {
+      if (balance >= 700) showNotify('Заявка на вывод Wildberries отправлена!');
+    };
+    document.getElementById("withdraw-steam").onclick = function() {
+      if (balance >= 700) showNotify('Заявка на вывод на баланс Steam отправлена!');
+    };
     // Модалки по заданиям
     document.getElementById("start-task1").addEventListener("click", () => {
       if (!tasksDone[0]) showModal("modal-task1");
