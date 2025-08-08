@@ -1,565 +1,313 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Zadacha</title>
-    <link rel="icon" type="image/png" href="https://i.ibb.co/3R7LssW/zadacha-logo.png">
-    <style>
-        body {
-            font-family: system-ui, Arial, sans-serif;
-            margin: 0;
-            background: #f5f5f5;
-            color: #1b1b1b;
-            -webkit-tap-highlight-color: transparent;
-        }
-        .header {
-            background: white;
-            padding: 12px 8px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid #ddd;
-            font-size: 18px;
-        }
-        .nav {
-            display: flex;
-            gap: 8px;
-        }
-        .nav button {
-            background: none;
-            border: none;
-            font-size: 15px;
-            cursor: pointer;
-            padding: 5px 12px;
-            border-radius: 8px;
-            transition: background 0.3s;
-        }
-        .nav button.active {
-            background-color: #007bff;
-            color: white;
-        }
-        .content {
-            padding: 8px;
-            max-width: 460px;
-            margin: 0 auto;
-        }
-        .task, .profile-card, .withdraw-card {
-            background: white;
-            border-radius: 14px;
-            padding: 12px;
-            margin-bottom: 12px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-        }
-        .task-title {
-            font-weight: bold;
-            margin-bottom: 6px;
-            display: flex;
-            align-items: center;
-            gap: 7px;
-            font-size: 16px;
-        }
-        .task-desc {
-            margin-bottom: 10px;
-            color: #333;
-            font-size: 14px;
-        }
-        .task-footer {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .task-footer span {
-            font-size: 12px;
-            color: #555;
-        }
-        .start-btn, .withdraw-btn, .back-btn, .check-btn, .tg-btn {
-            background-color: #007bff;
-            color: white;
-            padding: 10px 0;
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-            font-size: 15px;
-            width: 100%;
-            margin-top: 5px;
-            margin-bottom: 2px;
-            transition: background 0.3s, transform 0.1s;
-        }
-        .start-btn:disabled {background: #aaa; cursor: default;}
-        .start-btn:hover:not(:disabled),
-        .withdraw-btn:hover:not(:disabled),
-        .back-btn:hover,
-        .check-btn:hover,
-        .tg-btn:hover {background-color: #0056b3;}
-        .start-btn:active,
-        .withdraw-btn:active,
-        .back-btn:active,
-        .check-btn:active,
-        .tg-btn:active {transform: scale(0.97);}
-        .hidden {display: none;}
-        .done-label {
-            display: inline-block;
-            color: #36a82e;
-            background: #e9f9e7;
-            padding: 2px 10px;
-            border-radius: 8px;
-            margin-top: 8px;
-            font-size: 13px;
-        }
-        .modal-bg {
-            position: fixed;
-            z-index: 99;
-            left: 0; top: 0; right: 0; bottom: 0;
-            width: 100vw; height: 100vh;
-            background: rgba(0,0,0,0.24);
-            display: none;
-            align-items: center;
-            justify-content: center;
-        }
-        .modal-bg.show {display: flex;}
-        .modal {
-            background: #fff;
-            border-radius: 18px;
-            padding: 20px 10px 12px 10px;
-            max-width: 96vw;
-            width: 98vw;
-            box-shadow: 0 8px 36px rgba(0,0,0,0.13);
-            text-align: center;
-            position: relative;
-            color: #1b1b1b;
-        }
-        .modal input[type="text"],
-        .modal input[type="file"] {
-            width: 97%;
-            margin: 10px 0 14px 0;
-            padding: 10px;
-            font-size: 15px;
-            border-radius: 8px;
-            border: 1px solid #ccc;
-            color: #1b1b1b;
-        }
-        .modal .close-btn {
-            position: absolute;
-            top: 7px;
-            right: 11px;
-            background: none;
-            border: none;
-            font-size: 26px;
-            color: #aaa;
-            cursor: pointer;
-        }
-        .notify {
-            position: fixed;
-            z-index: 120;
-            left: 50%; top: 36px;
-            transform: translateX(-50%);
-            background: #222;
-            color: #fff;
-            border-radius: 15px;
-            padding: 13px 22px;
-            font-size: 16px;
-            opacity: 0; pointer-events: none;
-            transition: opacity 0.3s;
-            box-shadow: 0 2px 14px rgba(0,0,0,0.11);
-        }
-        .notify.show {opacity: 1;}
-        .subscribe-modal .modal {padding-top: 26px;}
-        .subscribe-list {
-            text-align: left;
-            margin: 14px 0 18px 0;
-            font-size: 15px;
-            padding-left: 0;
-        }
-        .subscribe-list li {margin-bottom: 7px;}
-        .check-btn, .tg-btn {margin: 11px 0 0 0;}
-        .withdraw-btn[disabled] {background: #aaa; cursor: default;}
-        .withdraw-hint {
-            font-size: 13px;
-            color: #d13c3c;
-            margin-top: 8px;
-        }
-        input, button, select, textarea {font-family: inherit;}
-        @media (max-width: 600px) {
-            .content {padding: 2vw;}
-            .modal {width: 99vw; padding: 13px 2vw;}
-            .modal input[type="text"], .modal input[type="file"] {font-size: 16px;}
-            .start-btn, .withdraw-btn, .back-btn, .check-btn, .tg-btn {font-size: 16px;}
-        }
-        @media (max-width: 400px) {
-            .modal input[type="text"], .modal input[type="file"] {font-size: 14px;}
-            .task-title, .profile-card h2 {font-size: 15px;}
-        }
-
-        /* ===== DARK MODE ===== */
-        @media (prefers-color-scheme: dark) {
-            body {
-                background: #181a20;
-                color: #f4f4f4;
-            }
-            .header {
-                background: #22232a;
-                color: #fff;
-                border-bottom: 1px solid #333;
-            }
-            .content {
-                background: transparent;
-            }
-            .task, .profile-card, .withdraw-card {
-                background: #23242c;
-                color: #f4f4f4;
-                box-shadow: 0 2px 8px rgba(0,0,0,0.17);
-            }
-            .task-footer span { color: #ccc; }
-            .done-label { color: #59c152; background: #1b2820; }
-            .modal {
-                background: #20222b;
-                color: #f4f4f4;
-                box-shadow: 0 8px 36px rgba(0,0,0,0.34);
-            }
-            .modal input[type="text"],
-            .modal input[type="file"] {
-                background: #22232a;
-                color: #fff;
-                border: 1px solid #333;
-            }
-            .start-btn, .withdraw-btn, .back-btn, .check-btn, .tg-btn {
-                background-color: #3089ff;
-                color: #fff;
-            }
-            .start-btn:disabled {
-                background: #40424c;
-                color: #888;
-            }
-            .lock-label {
-                color: #ff8989 !important;
-                background: #381e1e !important;
-            }
-            .notify {
-                background: #252733;
-                color: #fff;
-            }
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+  <title>Zadacha</title>
+  <style>
+    html,body{margin:0;padding:0;height:100%;font-family:system-ui,Arial,sans-serif;background:#f5f5f5;color:#191a1b;}
+    *,*:before,*:after{box-sizing:border-box;}
+    .header{background:#fff;color:#191a1b;padding:15px 10px 13px 10px;font-size:20px;font-weight:600;border-bottom:1px solid #ececec;text-align:center;}
+    .nav{margin:10px 0 18px 0;display:flex;gap:8px;justify-content:center;}
+    .tab-btn{background:#f1f1f1;color:#191a1b;border:none;border-radius:9px;font-size:15px;padding:6px 14px;cursor:pointer;font-weight:500;transition:background 0.16s;}
+    .tab-btn.active{background:#007bff;color:#fff;}
+    .content{max-width:430px;margin:0 auto;padding:8px 3px 24px 3px;}
+    .task,.profile-card{background:#fff;border-radius:14px;padding:15px 12px 13px 12px;margin-bottom:13px;box-shadow:0 2px 8px rgba(0,0,0,0.06);}
+    .task-title{font-weight:700;margin-bottom:8px;font-size:16.6px;display:flex;align-items:center;gap:8px;}
+    .task-desc{margin-bottom:12px;color:#3e3e3e;font-size:14.3px;}
+    .task-footer{display:flex;justify-content:space-between;align-items:center;}
+    .task-footer span{font-size:12.5px;color:#6b6b6b;}
+    .my-btn,.tg-btn{background:#007bff;color:#fff;font-weight:500;padding:11px 0;border:none;border-radius:10px;width:100%;font-size:16px;cursor:pointer;margin-top:5px;margin-bottom:2px;transition:background .16s,box-shadow .15s;}
+    .my-btn:active,.tg-btn:active{background:#0056b3;}
+    .my-btn:disabled{background:#bdbdbd;color:#fff;cursor:not-allowed;}
+    .my-input{width:100%;padding:12px;border-radius:8px;border:1.2px solid #d1d1d1;background:#f9f9fa;color:#181a1c;margin-bottom:13px;font-size:15.6px;outline:none;transition:border .17s;}
+    .my-input:focus{border:1.2px solid #007bff;background:#fff;}
+    .done-label{display:inline-block;color:#34ba43;background:#e6f7ea;padding:3px 13px;border-radius:10px;margin-top:9px;font-size:14px;font-weight:500;}
+    .lock-label{color:#d13c3c;background:#fde6e6;border-radius:8px;padding:6px 12px;margin-top:13px;font-size:15px;font-weight:500;}
+    .hidden{display:none;}
+    .modal-bg{position:fixed;z-index:99;left:0;top:0;right:0;bottom:0;width:100vw;height:100vh;background:rgba(0,0,0,0.18);display:none;align-items:center;justify-content:center;}
+    .modal-bg.show{display:flex;}
+    .modal{background:#fff;border-radius:18px;padding:23px 13px 13px 13px;max-width:97vw;width:97vw;box-shadow:0 8px 36px rgba(0,0,0,0.13);text-align:center;position:relative;color:#161718;}
+    .modal .close-btn{position:absolute;top:8px;right:11px;background:none;border:none;font-size:28px;color:#999;cursor:pointer;}
+    .notify{position:fixed;z-index:1200;left:50%;top:38px;transform:translateX(-50%);background:#232323;color:#fff;border-radius:15px;padding:13px 22px;font-size:16.5px;opacity:0;pointer-events:none;transition:opacity 0.3s;box-shadow:0 2px 14px rgba(0,0,0,0.12);}
+    .notify.show{opacity:1;}
+    @media (max-width:600px){.content{padding:1vw;}.modal{width:99vw;padding:13px 2vw;}.my-btn,.tg-btn{font-size:16.4px;}.my-input{font-size:15.3px;}}
+    @media (max-width:400px){.my-input{font-size:13.6px;}.task-title{font-size:14.7px;}}
+    @media (prefers-color-scheme:dark){
+      html,body{background:#181a20!important;color:#f4f4f4!important;}
+      .header{background:#23242a!important;color:#fff!important;border-bottom:1px solid #2d2d34!important;}
+      .task,.profile-card{background:#202126!important;color:#f4f4f4!important;box-shadow:0 2px 8px rgba(0,0,0,0.17)!important;}
+      .task-desc{color:#b3b5b8!important;}
+      .task-footer span{color:#aaa!important;}
+      .done-label{color:#54dd80!important;background:#142017!important;}
+      .modal{background:#20222b!important;color:#f4f4f4!important;box-shadow:0 8px 36px rgba(0,0,0,0.34)!important;}
+      .my-input{background:#23242a!important;color:#fff!important;border:1.2px solid #373744!important;}
+      .my-input:focus{border:1.2px solid #44a1ff!important;background:#23242a!important;}
+      .my-btn,.tg-btn{background:#3089ff!important;color:#fff!important;}
+      .my-btn:disabled{background:#40424c!important;color:#888!important;}
+      .lock-label{color:#ff8989!important;background:#2d1818!important;}
+      .notify{background:#252733!important;color:#fff!important;}
+    }
+  </style>
 </head>
 <body>
-    <div class="header">
-        <span>✅ Zadacha</span>
-        <div class="nav">
-            <button class="tab-btn active" data-tab="tasks">Задания</button>
-            <button class="tab-btn" data-tab="profile">Личный кабинет</button>
-        </div>
+  <div class="header">Zadacha</div>
+  <div class="content">
+    <div class="nav">
+      <button class="tab-btn active" data-tab="tasks">Задания</button>
+      <button class="tab-btn" data-tab="profile">Личный кабинет</button>
     </div>
-    <div class="content">
-        <!-- ЗАДАНИЯ -->
-        <div id="tasks-section">
-            <div class="task" id="task-card-1">
-                <div class="task-title">🔍 Задание 1</div>
-                <div class="task-desc">Найди официальный сайт компании «КосмоТех»</div>
-                <div class="task-footer">
-                    <span>10 мин • 100 ₽</span>
-                    <button class="start-btn" id="start-task1">Начать →</button>
-                </div>
-            </div>
-            <div class="task" id="task-card-2">
-                <div class="task-title">📷 Задание 2</div>
-                <div class="task-desc">Загрузи фото с улицы с погодой сегодня</div>
-                <div class="task-footer">
-                    <span>5 мин • 150 ₽</span>
-                    <button class="start-btn" id="start-task2">Начать →</button>
-                </div>
-            </div>
-            <div class="task" id="task-card-3">
-                <div class="task-title">🧹 Задание 3</div>
-                <div class="task-desc">Очисти с облачного диска повторяющиеся фото (200 файлов)</div>
-                <div class="task-footer">
-                    <span>7 мин • 700 ₽</span>
-                    <button class="start-btn" id="start-task3" disabled>Начать →</button>
-                </div>
-                <!-- КНОПКА ДЛЯ ВВОДА КОДА -->
-                <button class="start-btn" id="show-access-code" style="margin-top: 5px; width: 100%; display: none;">Ввести код доступа</button>
-            </div>
+    <!-- ЗАДАНИЯ -->
+    <div id="tasks-section">
+      <div class="task" id="task-card-1">
+        <div class="task-title">🔍 Задание 1</div>
+        <div class="task-desc">Найди официальный сайт компании «КосмоТех»</div>
+        <div class="task-footer">
+          <span>10 мин • 100 ₽</span>
+          <button class="my-btn" id="start-task1">Начать →</button>
         </div>
-        <!-- ЛИЧНЫЙ КАБИНЕТ -->
-        <div id="profile-section" class="hidden">
-            <div class="profile-card">
-                <h2>👤 Привет, пользователь</h2>
-                <p class="profile-info">Баланс: <strong id="profile-balance">0 ₽</strong></p>
-                <p class="profile-info">Выполнено заданий: <strong id="profile-tasks">0</strong></p>
-                <button class="withdraw-btn" id="go-withdraw" disabled>Вывести средства</button>
-                <div class="withdraw-hint" id="withdraw-hint" style="display:none;">
-                    Минимальная сумма для вывода — 1000 ₽
-                </div>
-            </div>
+      </div>
+      <div class="task" id="task-card-2">
+        <div class="task-title">📷 Задание 2</div>
+        <div class="task-desc">Загрузи фото с улицы с погодой сегодня</div>
+        <div class="task-footer">
+          <span>5 мин • 150 ₽</span>
+          <button class="my-btn" id="start-task2">Начать →</button>
         </div>
-        <!-- ВЫВОД СРЕДСТВ -->
-        <div id="withdraw-section" class="hidden">
-            <div class="withdraw-card">
-                <h2>Выберите способ вывода</h2>
-                <div class="withdraw-option">💳 Вывести на карту</div>
-                <div class="withdraw-option">🎁 Подарочная карта Wildberries</div>
-                <div class="withdraw-option">🎮 Баланс Steam</div>
-                <button class="back-btn" id="back-profile">← Назад</button>
-            </div>
+      </div>
+      <div class="task" id="task-card-3">
+        <div class="task-title">🧹 Задание 3</div>
+        <div class="task-desc">Очисти с облачного диска повторяющиеся фото (200 файлов)</div>
+        <div class="task-footer">
+          <span>7 мин • 700 ₽</span>
+          <button class="my-btn" id="start-task3" disabled>Начать →</button>
         </div>
+        <button class="my-btn" id="show-access-code" style="margin-top:5px; width:100%; display:none;">Ввести код доступа</button>
+      </div>
     </div>
-    <!-- МОДАЛКИ ЗАДАНИЙ -->
-    <div class="modal-bg" id="modal-task1">
-        <div class="modal">
-            <button class="close-btn" id="close-modal-task1">&times;</button>
-            <div class="task-title">🔍 Задание 1</div>
-            <div style="font-size:15px; margin:5px 0 10px 0;">Найди официальный сайт компании «КосмоТех» и вставь ссылку ниже:</div>
-            <input type="text" id="task1-url" placeholder="Вставьте ссылку на сайт">
-            <button class="start-btn" id="submit-task1">Готово</button>
-        </div>
+    <!-- ЛИЧНЫЙ КАБИНЕТ -->
+    <div id="profile-section" class="hidden">
+      <div class="profile-card">
+        <h2>👤 Привет, пользователь</h2>
+        <p>Баланс: <strong id="profile-balance">0 ₽</strong></p>
+        <p>Выполнено заданий: <strong id="profile-tasks">0</strong></p>
+      </div>
     </div>
-    <div class="modal-bg" id="modal-task2">
-        <div class="modal">
-            <button class="close-btn" id="close-modal-task2">&times;</button>
-            <div class="task-title">📷 Задание 2</div>
-            <div style="font-size:15px; margin:5px 0 10px 0;">Загрузите фото улицы с погодой сегодня:</div>
-            <input type="file" id="task2-photo" accept="image/*">
-            <button class="start-btn" id="submit-task2">Готово</button>
-        </div>
+  </div>
+  <!-- МОДАЛКИ -->
+  <div class="modal-bg" id="modal-task1">
+    <div class="modal">
+      <button class="close-btn" id="close-modal-task1">&times;</button>
+      <div class="task-title">🔍 Задание 1</div>
+      <div style="font-size:15px; margin:5px 0 10px 0;">Найди официальный сайт компании «КосмоТех» и вставь ссылку ниже:</div>
+      <input type="text" id="task1-url" class="my-input" placeholder="Вставьте ссылку на сайт">
+      <button class="my-btn" id="submit-task1">Готово</button>
     </div>
-    <div class="modal-bg" id="modal-task3">
-        <div class="modal">
-            <button class="close-btn" id="close-modal-task3">&times;</button>
-            <div class="task-title">🧹 Задание 3</div>
-            <div style="font-size:15px; margin:5px 0 10px 0;">Подтвердите, что удалили дублирующиеся фото (200 файлов):</div>
-            <input type="text" id="task3-confirm" placeholder="Напишите: Готово, удалил!">
-            <button class="start-btn" id="submit-task3">Готово</button>
-        </div>
+  </div>
+  <div class="modal-bg" id="modal-task2">
+    <div class="modal">
+      <button class="close-btn" id="close-modal-task2">&times;</button>
+      <div class="task-title">📷 Задание 2</div>
+      <div style="font-size:15px; margin:5px 0 10px 0;">Загрузите фото улицы с погодой сегодня:</div>
+      <input type="file" id="task2-photo" class="my-input" accept="image/*">
+      <button class="my-btn" id="submit-task2">Готово</button>
     </div>
-    <!-- МОДАЛКА ПОДПИСКИ -->
-    <div class="modal-bg subscribe-modal" id="modal-subscribe">
-        <div class="modal">
-            <div style="font-size:17px; font-weight:500; margin-bottom:4px;">Доступ к 3 заданию</div>
-            <div style="text-align:left; margin:14px 0 18px 0; font-size:15px;">
-                1. Чтобы получить доступ к 3 заданию — <b>нажми кнопку «Перейти в бота»</b><br>
-                2. Закрой это мини-приложение и зайди в бота, чтобы продолжить
-            </div>
-            <a href="https://t.me/zzadacha_bot?start=getcode" target="_blank" class="tg-btn" style="margin-bottom:10px;">Перейти в бот</a>
-            <input type="text" id="access-code-input" placeholder="Вставьте код доступа">
-            <button class="check-btn" id="check-access-code">Проверить код</button>
-        </div>
+  </div>
+  <div class="modal-bg" id="modal-task3">
+    <div class="modal">
+      <button class="close-btn" id="close-modal-task3">&times;</button>
+      <div class="task-title">🧹 Задание 3</div>
+      <div style="font-size:15px; margin:5px 0 10px 0;">Подтвердите, что удалили дублирующиеся фото (200 файлов):</div>
+      <input type="text" id="task3-confirm" class="my-input" placeholder="Напишите: Готово, удалил!">
+      <button class="my-btn" id="submit-task3">Готово</button>
     </div>
-    <div class="notify" id="notify"></div>
-    <script>
-        // ====== ЛОГИКА ======
-        let tasksDone = JSON.parse(localStorage.getItem("tasksDone")) || [false, false, false];
-        let taskPays = [100, 150, 700];
-        let balance = Number(localStorage.getItem("balance")) || 0;
-        let doneTasks = Number(localStorage.getItem("doneTasks")) || 0;
-        let canOpenThirdTask = localStorage.getItem("canOpenThirdTask") === "true";
-        // Заглушка для блокировки 3 задания (до обновления страницы)
-        let task3Placeholder = false;
-
-        function saveProgress() {
-            localStorage.setItem("tasksDone", JSON.stringify(tasksDone));
-            localStorage.setItem("balance", balance.toString());
-            localStorage.setItem("doneTasks", doneTasks.toString());
-            localStorage.setItem("canOpenThirdTask", canOpenThirdTask ? "true" : "false");
-        }
-
-        function updateProfile() {
-            document.getElementById("profile-balance").innerText = balance + " ₽";
-            document.getElementById("profile-tasks").innerText = doneTasks;
-            const withdrawBtn = document.getElementById("go-withdraw");
-            const hint = document.getElementById("withdraw-hint");
-            if (balance >= 1000) {
-                withdrawBtn.disabled = false;
-                hint.style.display = "none";
-            } else {
-                withdrawBtn.disabled = true;
-                hint.style.display = "block";
-            }
-        }
-
-        function setTaskDone(idx) {
-            tasksDone[idx] = true;
-            const card = document.getElementById("task-card-" + (idx+1));
-            if (!card.querySelector('.done-label')) {
-                const label = document.createElement('div');
-                label.className = 'done-label';
-                label.innerText = 'Выполнено!';
-                card.appendChild(label);
-            }
-            document.getElementById("start-task"+(idx+1)).disabled = true;
-            saveProgress();
-            updateAccessBtn();
-        }
-
-        function showNotify(message) {
-            const notify = document.getElementById("notify");
-            notify.textContent = message;
-            notify.classList.add("show");
-            setTimeout(() => {notify.classList.remove("show");}, 2300);
-        }
-
-        function showModal(id) {
-            document.getElementById(id).classList.add("show");
-        }
-        function closeModal(id) {
-            document.getElementById(id).classList.remove("show");
-        }
-
-        // ===== КНОПКА ВВОДА КОДА =====
-        function updateAccessBtn() {
-            const btn = document.getElementById("show-access-code");
-            if (tasksDone[0] && tasksDone[1] && !canOpenThirdTask) {
-                btn.style.display = "";
-            } else {
-                btn.style.display = "none";
-            }
-        }
-        document.getElementById("show-access-code").addEventListener("click", () => {
-            showModal("modal-subscribe");
-        });
-
-        // Tabs
-        const tabButtons = document.querySelectorAll(".tab-btn");
-        const tasksSection = document.getElementById("tasks-section");
-        const profileSection = document.getElementById("profile-section");
-        const withdrawSection = document.getElementById("withdraw-section");
-        const goWithdraw = document.getElementById("go-withdraw");
-        const backProfile = document.getElementById("back-profile");
-
-        tabButtons.forEach(button => {
-            button.addEventListener("click", () => {
-                tabButtons.forEach(btn => btn.classList.remove("active"));
-                button.classList.add("active");
-                tasksSection.classList.add("hidden");
-                profileSection.classList.add("hidden");
-                withdrawSection.classList.add("hidden");
-                if (button.dataset.tab === "tasks") tasksSection.classList.remove("hidden");
-                else profileSection.classList.remove("hidden");
-            });
-        });
-        goWithdraw && goWithdraw.addEventListener("click", () => {
-            profileSection.classList.add("hidden");
-            withdrawSection.classList.remove("hidden");
-        });
-        backProfile && backProfile.addEventListener("click", () => {
-            withdrawSection.classList.add("hidden");
-            profileSection.classList.remove("hidden");
-        });
-
-        // Модалки по заданиям
-        document.getElementById("start-task1").addEventListener("click", () => {
-            if (!tasksDone[0]) showModal("modal-task1");
-        });
-        document.getElementById("close-modal-task1").addEventListener("click", () => closeModal("modal-task1"));
-        document.getElementById("submit-task1").addEventListener("click", () => {
-            if (tasksDone[0]) return;
-            const url = document.getElementById("task1-url").value.trim();
-            if (url === "" || !url.startsWith("http")) {
-                showNotify("Пожалуйста, введите корректную ссылку на сайт.");
-                return;
-            }
-            balance += taskPays[0];
-            doneTasks += 1;
-            updateProfile();
-            showNotify("Задание выполнено! На ваш баланс зачислено 100 ₽");
-            setTaskDone(0);
-            closeModal("modal-task1");
-            document.getElementById("task1-url").value = "";
-            checkAfterTwoTasks();
-            saveProgress();
-        });
-
-        document.getElementById("start-task2").addEventListener("click", () => {
-            if (!tasksDone[1]) showModal("modal-task2");
-        });
-        document.getElementById("close-modal-task2").addEventListener("click", () => closeModal("modal-task2"));
-        document.getElementById("submit-task2").addEventListener("click", () => {
-            if (tasksDone[1]) return;
-            const fileInput = document.getElementById("task2-photo");
-            if (fileInput.files.length === 0) {
-                showNotify("Пожалуйста, выберите фотографию.");
-                return;
-            }
-            balance += taskPays[1];
-            doneTasks += 1;
-            updateProfile();
-            showNotify("Задание выполнено! На ваш баланс зачислено 150 ₽");
-            setTaskDone(1);
-            closeModal("modal-task2");
-            fileInput.value = "";
-            checkAfterTwoTasks();
-            saveProgress();
-        });
-
-        document.getElementById("start-task3").addEventListener("click", () => {
-            if (!tasksDone[2] && canOpenThirdTask && !task3Placeholder) showModal("modal-task3");
-        });
-        document.getElementById("close-modal-task3").addEventListener("click", () => closeModal("modal-task3"));
-        document.getElementById("submit-task3").addEventListener("click", () => {
-            if (tasksDone[2]) return;
-            const confirmInput = document.getElementById("task3-confirm").value.trim();
-            if (confirmInput.length < 2) {
-                showNotify("Пожалуйста, напишите подтверждение.");
-                return;
-            }
-            balance += taskPays[2];
-            doneTasks += 1;
-            updateProfile();
-            showNotify("Задание выполнено! На ваш баланс зачислено 700 ₽");
-            setTaskDone(2);
-            closeModal("modal-task3");
-            document.getElementById("task3-confirm").value = "";
-            saveProgress();
-        });
-
-        function checkAfterTwoTasks() {
-            if (tasksDone[0] && tasksDone[1] && !canOpenThirdTask) {
-                showModal("modal-subscribe");
-            }
-            updateAccessBtn();
-        }
-
-        // ======= КОД ДОСТУПА для третьего задания =======
-        const SECRET_CODE = "Zadacha2025";
-        document.getElementById("check-access-code").addEventListener("click", () => {
-            const code = document.getElementById("access-code-input").value.trim();
-            if (code === SECRET_CODE) {
-                canOpenThirdTask = true;
-                closeModal("modal-subscribe");
-                showNotify("Доступ к 3 заданию откроется через 24 часа!");
-                document.getElementById("start-task3").disabled = true;
-                showTask3Placeholder();
-                task3Placeholder = true; // До обновления страницы
-                updateAccessBtn();
-                saveProgress();
-            } else {
-                showNotify("Неверный код доступа!");
-            }
-        });
-
-        function showTask3Placeholder() {
-            const task3 = document.getElementById("task-card-3");
-            let lockDiv = task3.querySelector('.lock-label');
-            if (!lockDiv) {
-                lockDiv = document.createElement('div');
-                lockDiv.className = 'lock-label';
-                lockDiv.style.cssText = "color:#d13c3c; background:#fde6e6; border-radius:8px; padding:4px 10px; margin-top:10px; font-size:14px;";
-                task3.appendChild(lockDiv);
-            }
-            lockDiv.textContent = "Доступ к заданию откроется через 24 часа";
-            lockDiv.style.display = "";
-        }
-
-        // INIT
-        window.addEventListener('DOMContentLoaded', function() {
-            for (let i = 0; i < tasksDone.length; i++) {
-                if (tasksDone[i]) setTaskDone(i);
-            }
-            if (canOpenThirdTask) {
-                document.getElementById("start-task3").disabled = false;
-            }
-            updateProfile();
-            updateAccessBtn();
-        });
-    </script>
+  </div>
+  <!-- МОДАЛКА ПОДПИСКИ -->
+  <div class="modal-bg" id="modal-subscribe">
+    <div class="modal">
+      <div style="font-size:17px; font-weight:500; margin-bottom:4px;">Доступ к 3 заданию</div>
+      <div style="text-align:left; margin:14px 0 18px 0; font-size:15px;">
+        1. Чтобы получить доступ к 3 заданию — <b>нажми кнопку «Перейти в бота»</b><br>
+        2. Закрой это мини-приложение и зайди в бота, чтобы продолжить
+      </div>
+      <a href="https://t.me/zzadacha_bot?start=getcode" target="_blank" class="tg-btn" style="margin-bottom:10px;">Перейти в бот</a>
+      <input type="text" id="access-code-input" class="my-input" placeholder="Вставьте код доступа">
+      <button class="my-btn" id="check-access-code">Проверить код</button>
+    </div>
+  </div>
+  <div class="notify" id="notify"></div>
+  <script>
+    let tasksDone = JSON.parse(localStorage.getItem("tasksDone")) || [false, false, false];
+    let taskPays = [100, 150, 700];
+    let balance = Number(localStorage.getItem("balance")) || 0;
+    let doneTasks = Number(localStorage.getItem("doneTasks")) || 0;
+    let canOpenThirdTask = localStorage.getItem("canOpenThirdTask") === "true";
+    let task3Placeholder = false;
+    function saveProgress() {
+      localStorage.setItem("tasksDone", JSON.stringify(tasksDone));
+      localStorage.setItem("balance", balance.toString());
+      localStorage.setItem("doneTasks", doneTasks.toString());
+      localStorage.setItem("canOpenThirdTask", canOpenThirdTask ? "true" : "false");
+    }
+    function updateProfile() {
+      document.getElementById("profile-balance").innerText = balance + " ₽";
+      document.getElementById("profile-tasks").innerText = doneTasks;
+    }
+    function setTaskDone(idx) {
+      tasksDone[idx] = true;
+      const card = document.getElementById("task-card-" + (idx+1));
+      if (!card.querySelector('.done-label')) {
+        const label = document.createElement('div');
+        label.className = 'done-label';
+        label.innerText = 'Выполнено!';
+        card.appendChild(label);
+      }
+      document.getElementById("start-task"+(idx+1)).disabled = true;
+      saveProgress();
+      updateAccessBtn();
+    }
+    function showNotify(message) {
+      const notify = document.getElementById("notify");
+      notify.textContent = message;
+      notify.classList.add("show");
+      setTimeout(() => {notify.classList.remove("show");}, 2300);
+    }
+    function showModal(id) { document.getElementById(id).classList.add("show"); }
+    function closeModal(id) { document.getElementById(id).classList.remove("show"); }
+    function updateAccessBtn() {
+      const btn = document.getElementById("show-access-code");
+      if (tasksDone[0] && tasksDone[1] && !canOpenThirdTask) {
+        btn.style.display = "";
+      } else {
+        btn.style.display = "none";
+      }
+    }
+    document.getElementById("show-access-code").addEventListener("click", () => {
+      showModal("modal-subscribe");
+    });
+    // Tabs
+    const tabButtons = document.querySelectorAll(".tab-btn");
+    const tasksSection = document.getElementById("tasks-section");
+    const profileSection = document.getElementById("profile-section");
+    tabButtons.forEach(button => {
+      button.addEventListener("click", () => {
+        tabButtons.forEach(btn => btn.classList.remove("active"));
+        button.classList.add("active");
+        tasksSection.classList.add("hidden");
+        profileSection.classList.add("hidden");
+        if (button.dataset.tab === "tasks") tasksSection.classList.remove("hidden");
+        else profileSection.classList.remove("hidden");
+      });
+    });
+    // Модалки по заданиям
+    document.getElementById("start-task1").addEventListener("click", () => {
+      if (!tasksDone[0]) showModal("modal-task1");
+    });
+    document.getElementById("close-modal-task1").addEventListener("click", () => closeModal("modal-task1"));
+    document.getElementById("submit-task1").addEventListener("click", () => {
+      if (tasksDone[0]) return;
+      const url = document.getElementById("task1-url").value.trim();
+      if (url === "" || !url.startsWith("http")) {
+        showNotify("Пожалуйста, введите корректную ссылку на сайт.");
+        return;
+      }
+      balance += taskPays[0];
+      doneTasks += 1;
+      updateProfile();
+      showNotify("Задание выполнено! На ваш баланс зачислено 100 ₽");
+      setTaskDone(0);
+      closeModal("modal-task1");
+      document.getElementById("task1-url").value = "";
+      checkAfterTwoTasks();
+      saveProgress();
+    });
+    document.getElementById("start-task2").addEventListener("click", () => {
+      if (!tasksDone[1]) showModal("modal-task2");
+    });
+    document.getElementById("close-modal-task2").addEventListener("click", () => closeModal("modal-task2"));
+    document.getElementById("submit-task2").addEventListener("click", () => {
+      if (tasksDone[1]) return;
+      const fileInput = document.getElementById("task2-photo");
+      if (fileInput.files.length === 0) {
+        showNotify("Пожалуйста, выберите фотографию.");
+        return;
+      }
+      balance += taskPays[1];
+      doneTasks += 1;
+      updateProfile();
+      showNotify("Задание выполнено! На ваш баланс зачислено 150 ₽");
+      setTaskDone(1);
+      closeModal("modal-task2");
+      fileInput.value = "";
+      checkAfterTwoTasks();
+      saveProgress();
+    });
+    document.getElementById("start-task3").addEventListener("click", () => {
+      if (!tasksDone[2] && canOpenThirdTask && !task3Placeholder) showModal("modal-task3");
+    });
+    document.getElementById("close-modal-task3").addEventListener("click", () => closeModal("modal-task3"));
+    document.getElementById("submit-task3").addEventListener("click", () => {
+      if (tasksDone[2]) return;
+      const confirmInput = document.getElementById("task3-confirm").value.trim();
+      if (confirmInput.length < 2) {
+        showNotify("Пожалуйста, напишите подтверждение.");
+        return;
+      }
+      balance += taskPays[2];
+      doneTasks += 1;
+      updateProfile();
+      showNotify("Задание выполнено! На ваш баланс зачислено 700 ₽");
+      setTaskDone(2);
+      closeModal("modal-task3");
+      document.getElementById("task3-confirm").value = "";
+      saveProgress();
+    });
+    function checkAfterTwoTasks() {
+      if (tasksDone[0] && tasksDone[1] && !canOpenThirdTask) {
+        showModal("modal-subscribe");
+      }
+      updateAccessBtn();
+    }
+    // КОД ДОСТУПА
+    const SECRET_CODE = "Zadacha2025";
+    document.getElementById("check-access-code").addEventListener("click", () => {
+      const code = document.getElementById("access-code-input").value.trim();
+      if (code === SECRET_CODE) {
+        canOpenThirdTask = true;
+        closeModal("modal-subscribe");
+        showNotify("Доступ к 3 заданию откроется через 24 часа!");
+        document.getElementById("start-task3").disabled = true;
+        showTask3Placeholder();
+        task3Placeholder = true;
+        updateAccessBtn();
+        saveProgress();
+      } else {
+        showNotify("Неверный код доступа!");
+      }
+    });
+    function showTask3Placeholder() {
+      const task3 = document.getElementById("task-card-3");
+      let lockDiv = task3.querySelector('.lock-label');
+      if (!lockDiv) {
+        lockDiv = document.createElement('div');
+        lockDiv.className = 'lock-label';
+        lockDiv.style.cssText = "color:#d13c3c; background:#fde6e6; border-radius:8px; padding:4px 10px; margin-top:10px; font-size:14px;";
+        task3.appendChild(lockDiv);
+      }
+      lockDiv.textContent = "Доступ к заданию откроется через 24 часа";
+      lockDiv.style.display = "";
+    }
+    // INIT
+    window.addEventListener('DOMContentLoaded', function() {
+      for (let i = 0; i < tasksDone.length; i++) {
+        if (tasksDone[i]) setTaskDone(i);
+      }
+      if (canOpenThirdTask) {
+        document.getElementById("start-task3").disabled = false;
+      }
+      updateProfile();
+      updateAccessBtn();
+    });
+  </script>
 </body>
 </html>
